@@ -37,8 +37,8 @@ import Link from "next/link";export default function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
-      <nav className="relative mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
+    <main className="min-h-screen bg-gradient-to-br from-[#11152d] via-[#181a38] to-[#252653] text-white">
+      <nav className="relative mx-auto mt-4 flex max-w-5xl items-center justify-between rounded-2xl border border-white/10 bg-white/[0.05] px-6 py-4 shadow-lg shadow-black/10 backdrop-blur-xl">
   <a href="/" className="text-lg font-bold">
     jeckjudb
   </a>
@@ -96,41 +96,64 @@ import Link from "next/link";export default function Home() {
   </div>
 )}
 </nav>
-      {/* Hero */}
+    {/* Hero */}
+<section className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center overflow-hidden px-6 text-center">
+  {/* Background glow */}
+  <div className="absolute -left-40 top-40 h-[500px] w-[500px] rounded-full bg-pink-300/20 blur-[140px]" />
+<div className="absolute -right-40 top-20 h-[550px] w-[550px] rounded-full bg-blue-300/20 blur-[150px]" />
+<div className="absolute bottom-0 left-1/2 h-[450px] w-[650px] -translate-x-1/2 rounded-full bg-violet-300/15 blur-[150px]" />
 
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 text-center">
-        <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-zinc-400">
-          AI & Full-Stack Developer
-        </p>
+  <div className="relative z-10 flex flex-col items-center">
+    <div className="mb-6 flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm text-zinc-300 backdrop-blur">
+      <span className="h-2 w-2 rounded-full bg-green-400"></span>
+      Available for projects
+    </div>
 
-        <h1 className="max-w-4xl text-5xl font-bold tracking-tight sm:text-7xl">
-          I build things
-          <span className="text-zinc-400"> with AI.</span>
-        </h1>
+    <p className="mb-5 text-sm font-medium uppercase tracking-[0.3em] text-zinc-500">
+      AI & Full-Stack Developer
+    </p>
 
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
-          I create modern web applications using AI, Next.js and TypeScript.
-        </p>
+    <h1 className="max-w-5xl text-5xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
+      I build modern
+      <span className="block bg-gradient-to-r from-pink-300 via-purple-300 to-sky-300 bg-clip-text text-transparent">
+        products with AI.
+      </span>
+    </h1>
 
-        <div className="mt-10 flex gap-4">
-          <a
-            href="#projects"
-            className="rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-zinc-200"
-          >
-            View projects
-          </a>
+    <p className="mt-8 max-w-2xl text-lg leading-8 text-zinc-400 sm:text-xl">
+      I create fast, useful and beautiful web applications using
+      artificial intelligence, Next.js and TypeScript.
+    </p>
 
-          <a
-            href="https://github.com/jjjjjjeckjudb"
-            className="rounded-full border border-zinc-700 px-6 py-3 font-medium transition hover:bg-zinc-900"
-          >
-            GitHub
-          </a>
-        </div>
-      </section>
+    <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+      <a
+        href="#projects"
+        className="rounded-full bg-white px-7 py-3 font-medium text-black transition hover:scale-105 hover:bg-zinc-200"
+      >
+        View my projects ↓
+      </a>
 
-      {/* Projects */}
+      <a
+        href="https://github.com/jjjjjjeckjudb"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-full border border-zinc-700 bg-zinc-900/50 px-7 py-3 font-medium text-white backdrop-blur transition hover:scale-105 hover:border-zinc-500 hover:bg-zinc-900"
+      >
+        GitHub ↗
+      </a>
+    </div>
 
+    <div className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-zinc-600">
+      <span>Next.js</span>
+      <span>TypeScript</span>
+      <span>Tailwind CSS</span>
+      <span>AI</span>
+      <span>React</span>
+    </div>
+  </div>
+</section>
+
+{/* Projects */}
       <section
         id="projects"
         className="mx-auto max-w-5xl px-6 pb-24"
@@ -147,7 +170,7 @@ import Link from "next/link";export default function Home() {
           {projects.map((project) => (
             <article
               key={project.title}
-              className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 transition hover:-translate-y-1 hover:border-zinc-600"
+              className="group rounded-3xl border border-white/10 bg-white/[0.05] p-8 shadow-xl shadow-black/10 backdrop-blur-xl transition duration-300 hover:-translate-y-2 hover:border-purple-300/30 hover:bg-white/[0.08] hover:shadow-purple-500/10"
             >
               <h3 className="text-2xl font-semibold">
                 {project.title}
@@ -163,7 +186,7 @@ import Link from "next/link";export default function Home() {
 
               <Link
   href={`/projects/${project.slug}`}
-  className="mt-8 inline-block rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-zinc-200"
+  className="mt-8 inline-block rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-sky-200 px-5 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-purple-500/10 transition duration-300 hover:scale-105 hover:shadow-purple-400/20"
 >
   View project
 </Link>
@@ -173,7 +196,7 @@ import Link from "next/link";export default function Home() {
       </section>
        <section
         id="about"
-        className="mx-auto max-w-5xl px-6 py-24"
+        className="mx-auto my-24 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.05] px-8 py-16 shadow-xl shadow-black/10 backdrop-blur-xl sm:px-12"
       >
         <p className="mb-3 text-sm uppercase tracking-[0.3em] text-zinc-500">
           About me
@@ -204,7 +227,7 @@ import Link from "next/link";export default function Home() {
 
       <section
         id="contact"
-        className="mx-auto max-w-5xl px-6 py-24"
+        className="mx-auto mb-24 max-w-5xl rounded-3xl border border-white/10 bg-gradient-to-br from-pink-300/[0.08] via-purple-300/[0.06] to-sky-300/[0.08] px-8 py-16 shadow-xl shadow-purple-950/20 backdrop-blur-xl sm:px-12"
       >
         <p className="mb-3 text-sm uppercase tracking-[0.3em] text-zinc-500">
           Contact
@@ -222,7 +245,7 @@ import Link from "next/link";export default function Home() {
         <div className="mt-8 flex flex-wrap gap-4">
           <a
            href="mailto:zip449722@gmail.com"
-            className="rounded-full bg-white px-6 py-3 font-medium text-black transition hover:bg-zinc-200"
+            className="rounded-full bg-gradient-to-r from-pink-200 via-purple-200 to-sky-200 px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-purple-500/10 transition duration-300 hover:scale-105 hover:shadow-purple-400/25"
           >
             Email me
           </a>
