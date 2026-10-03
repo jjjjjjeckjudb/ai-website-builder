@@ -1,4 +1,27 @@
-export default function WebsiteBuilder() {
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+export default function WebsiteBuilder() { 
+    const [prompt, setPrompt] = useState("");
+  const [result, setResult] = useState("");
+  const [headline, setHeadline] = useState("");
+const [description, setDescription] = useState("");
+const [cta, setCta] = useState("");
+const [features, setFeatures] = useState<string[]>([]);
+  const [websiteType, setWebsiteType] = useState("Landing Page");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const previewGradient =
+  websiteType === "Online Store"
+    ? "from-orange-300/20 via-pink-300/20 to-purple-300/20"
+    : websiteType === "Portfolio"
+      ? "from-sky-300/20 via-purple-300/20 to-pink-300/20"
+      : websiteType === "Blog"
+        ? "from-emerald-300/20 via-sky-300/20 to-purple-300/20"
+        : websiteType === "SaaS Website"
+          ? "from-blue-300/20 via-indigo-300/20 to-purple-300/20"
+          : "from-pink-300/20 via-purple-300/20 to-sky-300/20";
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#11152d] via-[#181a38] to-[#252653] text-white">
       {/* Pastel background glow */}
@@ -8,12 +31,12 @@ export default function WebsiteBuilder() {
 
       <section className="relative z-10 mx-auto max-w-5xl px-6 py-12 sm:py-20">
         {/* Back */}
-        <a
+        <Link
           href="/"
           className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-2 text-sm text-zinc-300 backdrop-blur-xl transition hover:border-purple-300/30 hover:bg-white/[0.1] hover:text-white"
         >
           ← Back to home
-        </a>
+        </Link>
 
         {/* Hero */}
         <div className="mt-20">
@@ -46,30 +69,129 @@ export default function WebsiteBuilder() {
           </div>
         </div>
 
-        {/* Project preview */}
-        <div className="mt-16 rounded-[2rem] border border-white/10 bg-white/[0.05] p-3 shadow-2xl shadow-purple-950/30 backdrop-blur-xl">
-          <div className="flex min-h-[320px] items-center justify-center rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-pink-300/10 via-purple-300/10 to-sky-300/10 p-8 sm:min-h-[420px]">
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-3xl shadow-xl">
-                ✦
-              </div>
+        {/* Website generator */}
+<div className="mt-12">
+  <select
+  value={websiteType}
+  onChange={(e) => setWebsiteType(e.target.value)}
+  className="mb-4 w-full rounded-2xl border border-white/10 bg-[#181a38] p-4 text-white outline-none focus:border-purple-300/40"
+>
+  <option>Landing Page</option>
+  <option>Portfolio</option>
+  <option>Online Store</option>
+  <option>Blog</option>
+  <option>SaaS Website</option>
+</select>
+  <textarea
+    value={prompt}
+    onChange={(e) => setPrompt(e.target.value)}
+    placeholder="Describe the website you want to create..."
+    className="min-h-32 w-full rounded-2xl border border-white/10 bg-white/[0.05] p-5 text-white outline-none backdrop-blur-xl placeholder:text-zinc-500 focus:border-purple-300/40"
+  />
+  <button
+  disabled={isLoading || !prompt.trim()}
+  onClick={async () => {
+    if (!prompt.trim() || isLoading) return;
+    setIsLoading(true);
+    setError("");
+    setResult("");
+    setHeadline("");
+setDescription("");
+setCta("");
+setFeatures([]);
+    try {
+      const response = await fetch("/api/generate-website", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, websiteType }),
+        signal: AbortSignal.timeout(70000),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Generation failed. Please try again.");
+      if (typeof data.message !== "string" || !data.message.trim()) throw new Error("The AI service returned an empty response.");
+      const cleanedMessage = data.message
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
 
-              <p className="text-sm uppercase tracking-[0.3em] text-zinc-400">
-                Project preview
-              </p>
+const parsed = JSON.parse(cleanedMessage);
 
-              <h2 className="mt-3 text-2xl font-semibold">
-                AI Website Builder
-              </h2>
+setResult(data.message);
+setHeadline(parsed.headline || "");
+setDescription(parsed.description || "");
+setCta(parsed.cta || "");
+setFeatures(
+  Array.isArray(parsed.features) ? parsed.features.slice(0, 3) : []
+);
+    } catch (error) {
+      setError(error instanceof Error && !["TimeoutError", "AbortError"].includes(error.name)
+        ? error.message : "Generation timed out. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }}
+  className="mt-4 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-sky-300 px-6 py-3 font-semibold text-[#11152d] transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isLoading ? "Generating..." : "Generate Website"}
+</button>
+  {error && <p role="alert" className="mt-4 rounded-2xl border border-red-300/30 bg-red-300/10 p-4 text-red-200">{error}</p>}
+</div>
 
-              <p className="mx-auto mt-3 max-w-md text-zinc-400">
-                A visual preview of the application will appear here.
-              </p>
-            </div>
-          </div>
-        </div>
+{/* Project preview */}
+<div className="mt-16 rounded-[2rem] border border-white/10 bg-white/[0.05] p-3 shadow-2xl shadow-purple-950/30 backdrop-blur-xl">
+  <div
+    className={`flex min-h-[320px] items-center justify-center rounded-[1.5rem] border border-white/10 bg-gradient-to-br ${previewGradient} p-8 transition-all duration-500 sm:min-h-[420px]`}
+  >
+    <div className="w-full text-center">
+      <div className="mb-10 flex items-center justify-between border-b border-white/10 pb-4">
+  <span className="text-lg font-bold">
+    {headline ? headline.split(" ").slice(0, 2).join(" ") : "Your Brand"}
+  </span>
 
-        {/* About */}
+  <div className="hidden gap-6 text-sm text-zinc-300 sm:flex">
+    <span>Home</span>
+    <span>About</span>
+    <span>Contact</span>
+  </div>
+</div>
+      <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-3xl shadow-xl">
+        ✦
+      </div>
+
+      
+
+      <h2 className="mt-6 text-3xl font-bold sm:text-4xl">
+  {headline ? headline : "Your website will appear here"}
+</h2>
+
+      <p className="mx-auto mt-3 max-w-md text-zinc-400">
+  {description
+    ? description
+    : "Choose a website type, describe your idea, and click Generate Website."}
+</p>
+      {cta && (
+  <button className="mt-6 rounded-full bg-white px-6 py-3 font-semibold text-[#11152d] transition hover:scale-[1.02]">
+    {cta}
+  </button>
+)}
+<div className="mt-12 grid gap-4 sm:grid-cols-3">
+  {(features.length > 0
+  ? features
+  : ["Fast", "Modern", "AI Powered"]
+).map((item) => (
+    <div
+      key={item}
+      className="rounded-2xl border border-white/10 bg-white/10 p-5"
+    >
+      <p className="font-semibold">{item}</p>
+    </div>
+  ))}
+</div>
+    </div>
+  </div>
+</div>
+
+{/* About */}
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <div className="rounded-3xl border border-white/10 bg-white/[0.05] p-8 shadow-xl shadow-black/10 backdrop-blur-xl">
             <p className="text-sm uppercase tracking-[0.3em] text-purple-200">
@@ -105,12 +227,12 @@ export default function WebsiteBuilder() {
 
         {/* Bottom */}
         <div className="mt-20 border-t border-white/10 pt-8">
-          <a
+          <Link
             href="/#projects"
             className="text-sm text-zinc-400 transition hover:text-purple-200"
           >
             ← Explore other projects
-          </a>
+          </Link>
         </div>
       </section>
     </main>

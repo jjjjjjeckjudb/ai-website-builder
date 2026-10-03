@@ -1,4 +1,12 @@
+"use client";
+import { useState } from "react";
 export default function SecondBrain() {
+    const [question, setQuestion] = useState("");
+    const [sentQuestion, setSentQuestion] = useState("");
+    const [answer, setAnswer] = useState(
+  "Based on your saved notes, three ideas appear most often: AI agents, retrieval-augmented generation and building useful AI products around real user problems."
+);
+const [isLoading, setIsLoading] = useState(false);
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#11152d] via-[#181a38] to-[#252653] text-white">
       {/* Pastel background */}
@@ -66,7 +74,7 @@ export default function SecondBrain() {
               {/* User message */}
               <div className="flex justify-end">
                 <div className="max-w-md rounded-2xl rounded-br-md bg-gradient-to-r from-purple-300/20 to-sky-300/20 px-5 py-4 text-sm text-zinc-200">
-                  What were the most important ideas from my notes about AI?
+                  {sentQuestion || "What were the most important ideas from my notes about AI?"}
                 </div>
               </div>
 
@@ -74,10 +82,8 @@ export default function SecondBrain() {
               <div className="flex justify-start">
                 <div className="max-w-lg rounded-2xl rounded-bl-md border border-white/10 bg-white/[0.06] px-5 py-4">
                   <p className="text-sm leading-7 text-zinc-300">
-                    Based on your saved notes, three ideas appear most often:
-                    AI agents, retrieval-augmented generation and building
-                    useful AI products around real user problems.
-                  </p>
+  {isLoading ? "Thinking..." : answer}
+</p>
 
                   <div className="mt-4 rounded-xl border border-sky-300/10 bg-sky-300/[0.06] px-4 py-3 text-xs text-sky-200">
                     ✦ Answer generated from your knowledge base
@@ -88,13 +94,51 @@ export default function SecondBrain() {
 
             {/* Input */}
             <div className="mt-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3">
-              <span className="flex-1 px-2 text-sm text-zinc-500">
-                Ask your SecondBrain...
-              </span>
+              <input
+  type="text"
+  value={question}
+  onChange={(e) => setQuestion(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.currentTarget.nextElementSibling?.dispatchEvent(
+        new MouseEvent("click", { bubbles: true })
+      );
+    }
+  }}
+  placeholder="Ask your SecondBrain..."
+  className="flex-1 bg-transparent px-2 text-sm text-white outline-none placeholder:text-zinc-500"
+/>
 
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-200 via-purple-200 to-pink-200 font-bold text-slate-900">
-                ↑
-              </div>
+              <button
+  type="button"
+  onClick={() => {
+  if (!question.trim()) return;
+
+  setSentQuestion(question);
+  setIsLoading(true);
+  setQuestion("");
+
+  setTimeout(() => {
+    if (question.toLowerCase().includes("rag")) {
+  setAnswer(
+    "RAG stands for Retrieval-Augmented Generation. It allows an AI to search relevant information in a knowledge base before generating an answer."
+  );
+} else if (question.toLowerCase().includes("agent")) {
+  setAnswer(
+    "AI agents are systems that can understand a goal, make decisions and perform actions using tools or external data."
+  );
+} else {
+  setAnswer(
+    `I found information in your knowledge base about: "${question}"`
+  );
+}
+    setIsLoading(false);
+  }, 1000);
+}}
+  className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-200 via-purple-200 to-pink-200 font-bold text-slate-900 transition hover:scale-105"
+>
+  ↑
+</button>
             </div>
           </div>
         </div>
