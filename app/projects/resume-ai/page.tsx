@@ -8,10 +8,14 @@ export default function ResumeAI() {
   const [experience, setExperience] = useState("");
   const [improvedExperience, setImprovedExperience] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const improveExperience = async () => {
-    setIsLoading(true);
+ const improveExperience = async () => {
+  setIsLoading(true);
+  setError("");
+  setImprovedExperience("");
 
+  try {
     const response = await fetch("/api/improve-resume", {
       method: "POST",
       headers: {
@@ -24,12 +28,23 @@ export default function ResumeAI() {
 
     const data = await response.json();
 
+    if (!response.ok) {
+      throw new Error(data.error || "Could not improve the resume.");
+    }
+
     setImprovedExperience(data.message);
-
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again."
+    );
+  } finally {
     setIsLoading(false);
-  };
+  }
+};
 
-  return (
+return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#11152d] via-[#181a38] to-[#252653] text-white">
 
       {/* Pastel background */}
@@ -135,10 +150,18 @@ export default function ResumeAI() {
 <button
   type="button"
   onClick={improveExperience}
-  className="mt-6 w-full rounded-2xl bg-gradient-to-r from-pink-200 via-purple-200 to-sky-200 px-6 py-4 font-semibold text-slate-900 transition hover:scale-[1.02]"
+  disabled={isLoading || !experience.trim()}
+  className="mt-6 w-full rounded-2xl bg-gradient-to-r from-pink-200 via-purple-200 to-sky-200 px-6 py-4 font-semibold text-slate-900 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
 >
   {isLoading ? "✨ Improving..." : "✨ Improve with AI"}
 </button>
+{error && (
+  <div className="mt-5 rounded-2xl border border-red-300/20 bg-red-300/10 p-4">
+    <p className="text-sm text-red-200">
+      {error}
+    </p>
+  </div>
+)}
 
 {/* Improved result */}
 {improvedExperience && (
@@ -150,6 +173,13 @@ export default function ResumeAI() {
     <p className="mt-3 leading-7 text-zinc-200">
       {improvedExperience}
     </p>
+    <button
+  type="button"
+  onClick={() => navigator.clipboard.writeText(improvedExperience)}
+  className="mt-4 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-zinc-200 transition hover:bg-white/[0.1]"
+>
+  Copy result
+</button>
   </div>
 )}
   {/* Live result */}
@@ -187,21 +217,33 @@ export default function ResumeAI() {
                 </div>
 
                 <div>
-                  <div className="h-3 w-32 rounded-full bg-white/40" />
-                  <div className="mt-2 h-2 w-20 rounded-full bg-white/15" />
-                </div>
+  <p className="font-semibold text-white">
+    {name || "Your Name"}
+  </p>
+
+  <p className="mt-1 text-sm text-zinc-400">
+    {role || "Your Role"}
+  </p>
+</div>
               </div>
 
-              <div className="space-y-3">
-                <div className="h-2 w-full rounded-full bg-white/15" />
-                <div className="h-2 w-11/12 rounded-full bg-white/15" />
-                <div className="h-2 w-4/5 rounded-full bg-white/15" />
-              </div>
+              <div>
+  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-200">
+    Experience
+  </p>
+
+  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+    {improvedExperience ||
+      experience ||
+      "Your professional experience will appear here."}
+  </p>
+</div>
 
               <div className="mt-7 rounded-xl border border-purple-300/20 bg-purple-300/10 p-4 text-sm text-purple-100">
-                ✦ AI suggestion: Make your experience more specific and
-                results-focused.
-              </div>
+  {improvedExperience
+    ? "✦ AI improved your experience to make it clearer and more results-focused."
+    : "✦ AI suggestion: Improve your experience to make it more specific and results-focused."}
+</div>
             </div>
           </div>
         </div>
