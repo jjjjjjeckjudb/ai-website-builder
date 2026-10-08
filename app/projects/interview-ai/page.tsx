@@ -1,4 +1,77 @@
+"use client";
+
+import { useState } from "react";
 export default function InterviewAI() {
+  const interviewQuestions = [
+  "What is the difference between server-side rendering and client-side rendering?",
+  "What is the difference between let, const, and var in JavaScript?",
+  "What are React hooks and why are they useful?",
+  "What is the purpose of an API in a web application?",
+  "How would you improve the performance of a React application?",
+];
+  const [question, setQuestion] = useState(
+  "What is the difference between server-side rendering and client-side rendering?"
+);
+const [answer, setAnswer] = useState("");
+const [feedback, setFeedback] = useState("");
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState("");
+const [questionIndex, setQuestionIndex] = useState(0);
+const checkAnswer = async () => {
+  if (!answer.trim() || isLoading) return;
+
+  setIsLoading(true);
+  setError("");
+  setFeedback("");
+
+  try {
+    const response = await fetch("/api/interview-ai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question,
+        answer,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Could not check your answer.");
+    }
+
+    setFeedback(data.message);
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong. Please try again."
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
+const nextQuestion = () => {
+  const nextIndex = questionIndex + 1;
+
+  if (nextIndex >= interviewQuestions.length) return;
+
+  setQuestionIndex(nextIndex);
+  setQuestion(interviewQuestions[nextIndex]);
+  setAnswer("");
+  setFeedback("");
+  setError("");
+};
+const restartInterview = () => {
+  setQuestionIndex(0);
+  setQuestion(interviewQuestions[0]);
+  setAnswer("");
+  setFeedback("");
+  setError("");
+};
+  
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#11152d] via-[#181a38] to-[#252653] text-white">
       {/* Pastel background */}
@@ -58,13 +131,18 @@ export default function InterviewAI() {
               </div>
 
               <div className="rounded-full border border-purple-300/20 bg-purple-300/10 px-4 py-2 text-xs text-purple-200">
-                Question 3 of 10
+               Question {questionIndex + 1} of {interviewQuestions.length}
               </div>
             </div>
 
             {/* Progress */}
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-[30%] rounded-full bg-gradient-to-r from-purple-300 via-pink-300 to-sky-300" />
+              <div
+  className="h-full rounded-full bg-gradient-to-r from-purple-300 via-pink-300 to-sky-300 transition-all duration-500"
+  style={{
+    width: `${((questionIndex + 1) / interviewQuestions.length) * 100}%`,
+  }}
+/>
             </div>
 
             {/* Question */}
@@ -74,48 +152,75 @@ export default function InterviewAI() {
               </p>
 
               <h2 className="mt-4 text-xl font-semibold leading-8">
-                What is the difference between server-side rendering and
-                client-side rendering?
-              </h2>
+  {question}
+</h2>
             </div>
 
             {/* Answer */}
-            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">
-                Your answer
-              </p>
+<div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+  <p className="text-xs uppercase tracking-[0.25em] text-zinc-500">
+    Your answer
+  </p>
 
-              <p className="mt-4 text-sm leading-7 text-zinc-400">
-                Server-side rendering generates the page on the server before
-                sending it to the browser, while client-side rendering builds
-                the interface in the browser using JavaScript.
-              </p>
-            </div>
+  <textarea
+    value={answer}
+    onChange={(e) => setAnswer(e.target.value)}
+    placeholder="Type your answer here..."
+    rows={5}
+    className="mt-4 w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-7 text-white outline-none transition placeholder:text-zinc-600 focus:border-purple-300/30"
+  />
+</div>
 
             {/* Feedback */}
-            <div className="mt-5 rounded-2xl border border-sky-300/20 bg-gradient-to-r from-purple-300/[0.08] to-sky-300/[0.08] p-6">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-sm font-semibold text-sky-100">
-                  ✦ AI Feedback
-                </p>
+{feedback && (
+  <div className="mt-5 rounded-2xl border border-sky-300/20 bg-gradient-to-r from-purple-300/[0.08] to-sky-300/[0.08] p-6">
+    <p className="text-sm font-semibold text-sky-100">
+      ✦ AI Feedback
+    </p>
 
-                <span className="rounded-full bg-emerald-300/10 px-3 py-1 text-xs text-emerald-200">
-                  Good answer
-                </span>
-              </div>
+    <p className="mt-4 whitespace-pre-line text-sm leading-7 text-zinc-300">
+      {feedback}
+    </p>
+  </div>
+)}
 
-              <p className="mt-4 text-sm leading-7 text-zinc-300">
-                Clear explanation. You could improve the answer by mentioning
-                SEO, initial page load and hydration.
-              </p>
-            </div>
+{error && (
+  <div className="mt-5 rounded-2xl border border-red-300/20 bg-red-300/10 p-4">
+    <p className="text-sm text-red-200">{error}</p>
+  </div>
+)}
 
-            {/* Button */}
-            <div className="mt-6 flex justify-end">
-              <button className="rounded-full bg-gradient-to-r from-purple-200 via-pink-200 to-sky-200 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-105">
-                Next question →
-              </button>
-            </div>
+            {/* Buttons */}
+<div className="mt-6 flex flex-wrap justify-end gap-3">
+  <button
+    type="button"
+    onClick={checkAnswer}
+    disabled={isLoading || !answer.trim()}
+    className="rounded-full bg-gradient-to-r from-purple-200 via-pink-200 to-sky-200 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+  >
+    {isLoading ? "Checking..." : "Check answer →"}
+  </button>
+
+  {feedback && questionIndex < interviewQuestions.length - 1 && (
+    <button
+      type="button"
+      onClick={nextQuestion}
+      className="rounded-full border border-purple-300/30 bg-purple-300/10 px-6 py-3 text-sm font-semibold text-purple-100 transition hover:bg-purple-300/20"
+    >
+      Next question →
+    </button>
+  )}
+
+ {feedback && questionIndex === interviewQuestions.length - 1 && (
+  <button
+    type="button"
+    onClick={restartInterview}
+    className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-6 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/20"
+  >
+    ✓ Interview completed — Restart ↻
+  </button>
+)}
+</div>
           </div>
         </div>
 
