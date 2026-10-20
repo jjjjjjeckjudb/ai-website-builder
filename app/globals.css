@@ -27,3 +27,25 @@ body {
 html {
   scroll-behavior: smooth;
 }
+html {
+  scroll-behavior: smooth;
+}
+@keyframes plety-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-25%);
+  }
+}
+
+.plety-marquee {
+  animation: plety-marquee 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plety-marquee {
+    animation: none;
+  }
+}
